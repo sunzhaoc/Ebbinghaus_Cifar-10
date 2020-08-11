@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-11 22:51:35
+LastEditTime: 2020-08-12 00:10:53
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -68,7 +68,7 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # print(model)
 
 # 开始训练模型
-# model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
+model.load_state_dict(torch.load("./checkpoint_data_agumentation/model120.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
 Allepoch_batch = 0
