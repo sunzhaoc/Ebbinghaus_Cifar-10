@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-12 00:01:39
+LastEditTime: 2020-08-12 00:05:19
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -70,8 +70,8 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 
 
 # model.load_state_dict(torch.load("./checkpoint/model240.pkl")) # 120: 60.92 # 240: 60.84
-# model.load_state_dict(torch.load("./checkpoint_Ebbinghaus/model20.pkl")) # 20: 68.18  40: 60.76
-model.load_state_dict(torch.load("./checkpoint_data_agumentation/model20.pkl")) # 20: 60.03
+# model.load_state_dict(torch.load("./checkpoint_Ebbinghaus/model20.pkl")) # 20: 60.18  40: 60.76
+model.load_state_dict(torch.load("./checkpoint_data_agumentation/model20.pkl")) # 120: 60.03
 Average_loss = 0.0
 Average_correct = 0.0
 Allepoch_batch = 0
