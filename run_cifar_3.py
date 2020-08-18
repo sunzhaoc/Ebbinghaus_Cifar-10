@@ -1,10 +1,10 @@
 '''
-@Description: Origin Format
+@Description: 原始
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-18 21:36:37
+LastEditTime: 2020-08-18 22:04:24
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -15,39 +15,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.autograd import Variable 
 import time
+torch.manual_seed(1)
 all_starttime = time.time()
 BATCH_SIZE = 600
-n_epochs = 216
+n_epochs = 120
+checkpoint_path = "./checkpoint/"
 
-path = "./CIFAR10"
+train_path = "./cifar10_train"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
 
-data_image = datasets.ImageFolder(root = path, transform = transform)
-data_loader_image = torch.utils.data.DataLoader(dataset=data_image,
+train_image = datasets.ImageFolder(root = train_path, transform = transform)
+
+traindata_loader_image = torch.utils.data.DataLoader(dataset=train_image,
                                                 batch_size = BATCH_SIZE,
                                                 shuffle = True)
-
+                                                
 # 检查电脑GPU资源
 use_gpu = torch.cuda.is_available()
 print(use_gpu) # 查看用没用GPU，用了打印True，没用打印False
 
 # 加载模型并设为预训练
-model = models.vgg19(pretrained = True)
+# model = models.vgg19(pretrained = True)
+model = models.alexnet(pretrained = True)
 print(model) # 查看模型结构
 
 for parma in model.parameters():
     parma.requires_grad = False # 不进行梯度更新
 
-# 改变模型的全连接层，因为原模型是输出1000个类，本项目只需要输出2类
-model.classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096),
+# 改变模型的全连接层，因为原模型是输出1000个类，本项目只需要输出10类
+model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.5, inplace=False),
+                                       torch.nn.Linear(9216, 4096),
                                        torch.nn.ReLU(),
                                        torch.nn.Dropout(p=0.5),
                                        torch.nn.Linear(4096, 4096),
-                                       torch.nn.ReLU(),
-                                       torch.nn.Dropout(p=0.5),
+                                       torch.nn.ReLU,
                                        torch.nn.Linear(4096, 10))
+
 
 for index, parma in enumerate(model.classifier.parameters()):
     if index == 6:
@@ -65,26 +70,25 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # print(model)
 
 ### 开始训练模型
+# model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
+Average_loss = 0.0
+Average_correct = 0.0
+Allepoch_batch = 0
 for epoch in range(n_epochs):
-    print("Epoch{}/{}".format(epoch + 1, n_epochs))
-    print("-"*10)
     model.train = True
         
-    batch = 0
-    Average_loss = 0.0
-    Average_correct = 0.0
+    inepoch_batch = 0
 
-    for data in data_loader_image:
+    for data in traindata_loader_image:
         Step_loss = 0.0
         Step_correct = 0.0
         
         step_starttime = time.time()
         
-        batch += 1
+        inepoch_batch += 1
+        Allepoch_batch += 1
+
         X, y = data
-        # print(data.size())
-        # print(X.size())
-        # print(y.size())
         if use_gpu:
             X, y = Variable(X.cuda()), Variable(y.cuda())
         else:
@@ -108,18 +112,19 @@ for epoch in range(n_epochs):
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
 
-        if batch%1 == 0:
-            print("Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(batch, 
-                                                                        Average_loss / (BATCH_SIZE * batch), 
-                                                                        100 * Average_correct / (BATCH_SIZE * batch),
+        if inepoch_batch%1 == 0:
+            print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
+                                                                        n_epochs,
+                                                                        inepoch_batch, 
+                                                                        Average_loss / (BATCH_SIZE * Allepoch_batch), 
+                                                                        100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
                                                                         Step_loss / BATCH_SIZE, 
                                                                         100 * Step_correct / BATCH_SIZE,
                                                                         step_time % 60,
                                                                         all_time // 60,
                                                                         all_time % 60))
-    # epoch_loss = running_loss/len(data_image[param])
-    # epoch_correct = 100*running_correct/len(data_image[param])
+    if epoch%20 ==0:                                                                    
+        torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
     
-    # print("{} Loss:{:.4f}, Correct:{:.4f}".format(param, epoch_loss, epoch_correct))
 
-# print("Training time is:{:.0f}m {:.0f}s".format(now_time//60, now_time%60))
+torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
