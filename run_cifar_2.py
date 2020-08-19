@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-11 13:04:19
+LastEditTime: 2020-08-19 23:49:28
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -17,24 +17,18 @@ from torch.autograd import Variable
 import time
 torch.manual_seed(1)
 all_starttime = time.time()
-BATCH_SIZE = 600
-n_epochs = 120
-checkpoint_path = "./checkpoint/"
+BATCH_SIZE = 6
+n_epochs = 6
+checkpoint_path = "./small_checkpoint/"
 
 train_path = "./cifar10_train"
-test_path =  "./cifar10_test"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
 
 train_image = datasets.ImageFolder(root = train_path, transform = transform)
-test_image = datasets.ImageFolder(root = test_path, transform = transform)
 
 traindata_loader_image = torch.utils.data.DataLoader(dataset=train_image,
-                                                batch_size = BATCH_SIZE,
-                                                shuffle = True)
-
-testdata_loader_image = torch.utils.data.DataLoader(dataset=test_image,
                                                 batch_size = BATCH_SIZE,
                                                 shuffle = True)
 # 检查电脑GPU资源
@@ -73,7 +67,7 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # print(model)
 
 ### 开始训练模型
-model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
+# model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
 Allepoch_batch = 0
@@ -127,63 +121,7 @@ for epoch in range(n_epochs):
                                                                         all_time // 60,
                                                                         all_time % 60))
     if epoch%20 ==0:                                                                    
-        torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
+        torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
     
 
-torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
-
-
-# model.load_state_dict(torch.load("./checkpoint/model80.pkl"))
-# Average_loss = 0.0
-# Average_correct = 0.0
-# Allepoch_batch = 0
-# test_epoch = 1
-# for epoch in range(test_epoch):
-#     # print("Epoch{}/{}".format(epoch + 1, n_epochs))
-#     # print("-"*10)
-#     model.train = False
-        
-#     inepoch_batch = 0
-
-#     for data in testdata_loader_image:
-#         Step_loss = 0.0
-#         Step_correct = 0.0
-        
-#         step_starttime = time.time()
-        
-#         inepoch_batch += 1
-#         Allepoch_batch += 1
-
-#         X, y = data
-
-#         if use_gpu:
-#             X, y = Variable(X.cuda()), Variable(y.cuda())
-#         else:
-#             X,y = Variable(X), Variable(y)
-        
-#         optimizer.zero_grad()
-
-#         y_pred = model(X)
-#         _,pred = torch.max(y_pred.data, 1)
-#         loss = cost(y_pred, y)
-
-#         Step_loss += loss.item()
-#         Average_loss += Step_loss
-
-#         step_time = time.time() - step_starttime
-#         all_time = time.time() - all_starttime
-
-#         Step_correct = float(torch.sum(pred == y.data))
-#         Average_correct += Step_correct
-
-#         if inepoch_batch%1 == 0:
-#             print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
-#                                                                         n_epochs,
-#                                                                         inepoch_batch, 
-#                                                                         Average_loss / (BATCH_SIZE * Allepoch_batch), 
-#                                                                         100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
-#                                                                         Step_loss / BATCH_SIZE, 
-#                                                                         100 * Step_correct / BATCH_SIZE,
-#                                                                         step_time % 60,
-#                                                                         all_time // 60,
-#                                                                         all_time % 60))
+torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))

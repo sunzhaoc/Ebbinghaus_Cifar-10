@@ -1,10 +1,10 @@
 '''
-@Description: Ebbinghaus Format
+@Description: Ebbinghaus Format Newsmall
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-20 04:50:27
+LastEditTime: 2020-08-20 06:09:09
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -20,7 +20,7 @@ torch.manual_seed(1)
 
 # BATCH_SIZE = 100
 n_epochs = 1
-folder_file = os.listdir('./new_cifar10')
+folder_file = os.listdir('./new_small_cifar10')
 
 # 检查电脑GPU资源
 use_gpu = torch.cuda.is_available()
@@ -78,7 +78,7 @@ for epoch in range(n_epochs):
 
         # 计算batchsize
         BATCH_SIZE = 0;
-        batch_path = os.path.join('./new_cifar10/', str(path))  #./NEWDATA/0000/
+        batch_path = os.path.join('./new_small_cifar10/', str(path))  #./NEWDATA/0000/
         batch_file = os.listdir(batch_path) # cat, dog
         for each_file in batch_file:
             sub_path = os.path.join(batch_path, str(each_file))  #./NEWDATA/0000/cat
@@ -92,6 +92,16 @@ for epoch in range(n_epochs):
                                         transforms.ToTensor(),
                                         transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
         data_image = datasets.ImageFolder(root = batch_path, transform = transform)
+        data_image.class_to_idx = {"airplane": 1,
+                                   "automobile": 2,
+                                   "bird": 3,
+                                   "cat": 4,
+                                   "deer": 5,
+                                   "dog": 6,
+                                   "frog": 7,
+                                   "horse": 8,
+                                   "ship": 9,
+                                   "truck": 10}
         data_loader_image = torch.utils.data.DataLoader(dataset=data_image,
                                                         batch_size = BATCH_SIZE,
                                                         shuffle = True)

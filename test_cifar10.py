@@ -3,8 +3,8 @@
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-26 16:49:55
-@LastEditors: Vicro
-@LastEditTime: 2020-07-31 19:14:30
+LastEditors: Vicro
+LastEditTime: 2020-08-20 04:04:04
 '''
 import os
 import shutil
@@ -26,16 +26,16 @@ from torchvision import datasets, transforms, models
 # BATCH_SIZE = 10
 # print(len(data_file))
 
-BATCH_SIZE = 100
+BATCH_SIZE = 1  # In practice, the Batch-Size is 6 times than the set value due to the traditional Ebbinghaus setting
 all_data_file = os.listdir('./all_cifar/')
 random.shuffle(all_data_file)
 # print(all_data_file)
-data_file = os.listdir('./CIFAR10')
-# print(len(datafile))
+data_file = os.listdir('./new_small_cifar10')
+# print(len(data_file))
 
 
 for batch in range(len(all_data_file) // BATCH_SIZE):
-    print("{:.2f}%".format(batch * 100 / (len(all_data_file) // BATCH_SIZE)))
+    print("{:.2f}%".format(batch * 100 / (len(all_data_file) // BATCH_SIZE)))   # Shows the progress of the program
     # print(len(all_data_file) // BATCH_SIZE)
     batch_file = all_data_file[batch * BATCH_SIZE: (batch + 1) * BATCH_SIZE]
     # print(len(batch_file))
@@ -62,19 +62,17 @@ for batch in range(len(all_data_file) // BATCH_SIZE):
         elif "truck" in i:  # 10
             tag = "truck"
 
-        old_dir = os.path.join("./CIFAR10", tag, i)
+        old_dir = os.path.join("./all_cifar", i)
         # print(old_dir)
-        for num in [0, 1, 2, 4, 7, 15]:
-            new_dir = os.path.join("./new_cifar10/", (str(batch + num)).zfill(4), tag)
+        for num in [0, 1, 2, 4, 7, 15]: # How often do we repeat
+            new_dir = os.path.join("./new_small_cifar10/", (str(batch + num)).zfill(5), tag)    # the parameter in .zfill() means the number of Digits in the floder name
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
             new_dir = os.path.join(new_dir, i)
             shutil.copyfile(old_dir, new_dir)
             # print(new_dir)
-            a=1
         # print(new_dir)
-        a=1
-    a=1
+
 
 # 计算batchsize
 # folder_file = os.listdir('./NEWDATA/')  # 0000, 0001, 0002

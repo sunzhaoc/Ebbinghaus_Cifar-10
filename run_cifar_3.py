@@ -1,10 +1,10 @@
 '''
-@Description: 原始
+@Description: 
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-18 22:04:24
+LastEditTime: 2020-08-20 05:25:55
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -17,42 +17,39 @@ from torch.autograd import Variable
 import time
 torch.manual_seed(1)
 all_starttime = time.time()
-BATCH_SIZE = 600
-n_epochs = 120
-checkpoint_path = "./checkpoint/"
+BATCH_SIZE = 5
+n_epochs = 6
+checkpoint_path = "./small_checkpoint/"
 
-train_path = "./cifar10_train"
+train_path = "./00147"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
 
 train_image = datasets.ImageFolder(root = train_path, transform = transform)
-
+print(train_image)
 traindata_loader_image = torch.utils.data.DataLoader(dataset=train_image,
                                                 batch_size = BATCH_SIZE,
                                                 shuffle = True)
-                                                
 # 检查电脑GPU资源
 use_gpu = torch.cuda.is_available()
 print(use_gpu) # 查看用没用GPU，用了打印True，没用打印False
 
 # 加载模型并设为预训练
-# model = models.vgg19(pretrained = True)
-model = models.alexnet(pretrained = True)
+model = models.vgg19(pretrained = True)
 print(model) # 查看模型结构
 
 for parma in model.parameters():
     parma.requires_grad = False # 不进行梯度更新
 
-# 改变模型的全连接层，因为原模型是输出1000个类，本项目只需要输出10类
-model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.5, inplace=False),
-                                       torch.nn.Linear(9216, 4096),
+# 改变模型的全连接层，因为原模型是输出1000个类，本项目只需要输出2类
+model.classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096),
                                        torch.nn.ReLU(),
                                        torch.nn.Dropout(p=0.5),
                                        torch.nn.Linear(4096, 4096),
-                                       torch.nn.ReLU,
-                                       torch.nn.Linear(4096, 10))
-
+                                       torch.nn.ReLU(),
+                                       torch.nn.Dropout(p=0.5),
+                                       torch.nn.Linear(4096, 5))
 
 for index, parma in enumerate(model.classifier.parameters()):
     if index == 6:
@@ -100,6 +97,8 @@ for epoch in range(n_epochs):
         _,pred = torch.max(y_pred.data, 1)
         loss = cost(y_pred, y)
 
+        print(pred.tolist())
+        print(y.tolist())
 
         loss.backward()
         optimizer.step()
@@ -124,7 +123,7 @@ for epoch in range(n_epochs):
                                                                         all_time // 60,
                                                                         all_time % 60))
     if epoch%20 ==0:                                                                    
-        torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
+        torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
     
 
-torch.save(model.state_dict(), ("./checkpoint/model"+str(time.time())+".pkl"))
+torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
