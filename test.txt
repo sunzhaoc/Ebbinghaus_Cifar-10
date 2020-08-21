@@ -1,0 +1,9 @@
+2020-08-21 00:24:24,011 - INFO: Epoch:1 Batch:9 Batchsize:43 Ave_Loss:0.19855 Ave_Acc:55.98 Step_Loss:0.03591 Step_Acc:67.44 Step_Time:0.058s All_Time:0min14.91s All_data:234 All_batch:10
+2020-08-21 00:24:24,125 - INFO: Epoch:1 Batch:10 Batchsize:44 Ave_Loss:0.17122 Ave_Acc:57.55 Step_Loss:0.02587 Step_Acc:65.91 Step_Time:0.053s All_Time:0min15.02s All_data:278 All_batch:11
+2020-08-21 00:24:24,333 - INFO: Epoch:1 Batch:11 Batchsize:42 Ave_Loss:0.15411 Ave_Acc:59.06 Step_Loss:0.04090 Step_Acc:69.05 Step_Time:0.082s All_Time:0min15.23s All_data:320 All_batch:12
+2020-08-21 00:24:24,495 - INFO: Epoch:1 Batch:12 Batchsize:48 Ave_Loss:0.14032 Ave_Acc:59.78 Step_Loss:0.04833 Step_Acc:64.58 Step_Time:0.068s All_Time:0min15.39s All_data:368 All_batch:13
+2020-08-21 00:24:24,621 - INFO: Epoch:1 Batch:13 Batchsize:42 Ave_Loss:0.13138 Ave_Acc:60.49 Step_Loss:0.05309 Step_Acc:66.67 Step_Time:0.056s All_Time:0min15.52s All_data:410 All_batch:14
+2020-08-21 00:24:24,743 - INFO: Epoch:1 Batch:14 Batchsize:52 Ave_Loss:0.11877 Ave_Acc:62.99 Step_Loss:0.01930 Step_Acc:82.69 Step_Time:0.058s All_Time:0min15.64s All_data:462 All_batch:15
+2020-08-21 00:24:24,853 - INFO: Epoch:1 Batch:15 Batchsize:44 Ave_Loss:0.11217 Ave_Acc:63.24 Step_Loss:0.04288 Step_Acc:65.91 Step_Time:0.052s All_Time:0min15.75s All_data:506 All_batch:16
+2020-08-21 00:24:24,969 - INFO: Epoch:1 Batch:16 Batchsize:48 Ave_Loss:0.10446 Ave_Acc:65.16 Step_Loss:0.02318 Step_Acc:85.42 Step_Time:0.055s All_Time:0min15.87s All_data:554 All_batch:17
+2020-08-21 00:24:25,093 - INFO: Epoch:1 Batch:17 Batchsize:53 Ave_Loss:0.09809 Ave_Acc:66.23 Step_Loss:0.03150 Step_Acc:77.36 Step_Time:0.061s All_Time:0min15.99s All_data:607 All_batch:18
