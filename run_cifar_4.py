@@ -1,10 +1,10 @@
 '''
-@Description: Add Log
+@Description: Add Log and Loss
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-21 07:58:05
+LastEditTime: 2020-08-24 13:17:10
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable 
 import time
 
-logger = logging.getLogger('Ebbinghaus')
+logger = logging.getLogger('VGG16')
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -26,12 +26,12 @@ logger.addHandler(ch)
 
 torch.manual_seed(1)
 all_starttime = time.time()
-BATCH_SIZE = 81
-n_epochs = 17
+BATCH_SIZE = 200
+n_epochs = 1000
 
-checkpoint_path = "Z:/STUDY/checkpoint/"
-train_path = "Z:/STUDY/cifar10_train"
-
+checkpoint_path = "Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/origin"
+# train_path = "Z:/STUDY/cifar10_train"
+train_path = "Y:/2020/Ebbinghaus-Cifar10/cifar10_train"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
@@ -46,7 +46,7 @@ use_gpu = torch.cuda.is_available()
 print(use_gpu) # 查看用没用GPU，用了打印True，没用打印False
 
 # 加载模型并设为预训练
-model = models.vgg19(pretrained = True)
+model = models.vgg16(pretrained = True)
 print(model) # 查看模型结构
 
 for parma in model.parameters():
@@ -71,7 +71,9 @@ if use_gpu:
 # 定义代价函数——交叉熵
 cost = torch.nn.CrossEntropyLoss()
 # 定义优化器
-optimizer = torch.optim.Adam(model.classifier.parameters())
+LR = 0.001
+optimizer = torch.optim.Adam(model.classifier.parameters(), lr = LR)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=250, gamma=0.95)
 
 # 再次查看模型结构
 # print(model)
@@ -81,6 +83,9 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 Average_loss = 0.0
 Average_correct = 0.0
 Allepoch_batch = 0
+All_batchsize = 0
+step = 0
+
 for epoch in range(n_epochs):
     model.train = True
         
@@ -89,11 +94,10 @@ for epoch in range(n_epochs):
     for data in traindata_loader_image:
         Step_loss = 0.0
         Step_correct = 0.0
-        
-        step_starttime = time.time()
-        
+                
         inepoch_batch += 1
         Allepoch_batch += 1
+        step += 1
 
         X, y = data
         if use_gpu:
@@ -110,47 +114,36 @@ for epoch in range(n_epochs):
 
         loss.backward()
         optimizer.step()
+        scheduler.step()
         Step_loss += loss.item()
-        Average_loss += Step_loss
+        Average_loss += (Step_loss * BATCH_SIZE)
 
-        step_time = time.time() - step_starttime
         all_time = time.time() - all_starttime
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-
+        All_batchsize += BATCH_SIZE
         if inepoch_batch%1 == 0:
-            # print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
-            #                                                             n_epochs,
-            #                                                             inepoch_batch, 
-            #                                                             Average_loss / (BATCH_SIZE * Allepoch_batch), 
-            #                                                             100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
-            #                                                             Step_loss / BATCH_SIZE, 
-            #                                                             100 * Step_correct / BATCH_SIZE,
-            #                                                             step_time % 60,
-            #                                                             all_time // 60,
-            #                                                             all_time % 60))
-            logger.info("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
-                                                                        n_epochs,
-                                                                        inepoch_batch, 
-                                                                        Average_loss / (BATCH_SIZE * Allepoch_batch), 
-                                                                        100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
-                                                                        Step_loss / BATCH_SIZE, 
-                                                                        100 * Step_correct / BATCH_SIZE,
-                                                                        step_time % 60,
-                                                                        all_time // 60,
-                                                                        all_time % 60))
+            logger.info("Epoch{}/{} Step: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f} Train_Time: {:.0f} h {:.0f} m {:.2f} s".format(
+                epoch + 1,
+                n_epochs,
+                step,
+                Average_loss / All_batchsize,
+                100 * Average_correct / All_batchsize,
+                Step_loss,
+                100 * Step_correct / BATCH_SIZE,
+                all_time // 3600,
+                (all_time // 60)-60*(all_time // 3600),
+                all_time % 60))
 
             logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
-                    filename='vgg19.log',
+                    filename='vgg16.log',
                     filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
                     #a是追加模式，默认如果不写的话，就是追加模式
                     # format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
                     format='%(asctime)s - %(levelname)s: %(message)s'
                     #日志格式
                     )
-            # torch.save(model.state_dict(), (checkpoint_path+"model"+str(time.time())+".pkl"))
-    if (epoch%16==0):
-        torch.save(model.state_dict(), (checkpoint_path+"model"+str(time.time())+".pkl"))
-        
-torch.save(model.state_dict(), (checkpoint_path+"model"+str(time.time())+".pkl"))
+            
+    if (epoch+1)%10 == 0: 
+        torch.save(model.state_dict(), (checkpoint_path+"model_batch"+str(epoch*50000)+".pkl"))

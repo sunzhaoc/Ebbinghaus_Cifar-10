@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-20 00:25:36
+LastEditTime: 2020-08-24 23:24:01
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -21,7 +21,6 @@ BATCH_SIZE = 1
 n_epochs = 120
 # checkpoint_path = "./checkpoint/"
 
-train_path = "./cifar10_train"
 test_path =  "./cifar10_test"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
@@ -38,7 +37,7 @@ use_gpu = torch.cuda.is_available()
 print(use_gpu) # 查看用没用GPU，用了打印True，没用打印False
 
 # 加载模型并设为预训练
-model = models.vgg19(pretrained = True)
+model = models.vgg16(pretrained = True)
 print(model) # 查看模型结构
 
 for parma in model.parameters():
@@ -69,17 +68,19 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # print(model)
 
 
-# model.load_state_dict(torch.load("./checkpoint/model240.pkl")) # 120: 60.92 # 240: 60.84
+# model.load_state_dict(torch.load("./checkpoint/model1597889212.2740216.pkl")) #50.32 # 120: 60.92 # 240: 60.84
 # model.load_state_dict(torch.load("./checkpoint_Ebbinghaus/model20.pkl")) # 20: 60.18  40: 60.76
 # model.load_state_dict(torch.load("./checkpoint_data_agumentation/model120.pkl")) # 120: 60.03 240: 59.12 
 # model.load_state_dict(torch.load("./small_checkpoint/model1597854121.9655204.pkl")) # 6: 12.45
-model.load_state_dict(torch.load("./small_checkpoint_Ebbinghaus/model1597869868.3941066.pkl")) # 1: 9.83
-
+# model.load_state_dict(torch.load("./small_checkpoint_Ebbinghaus/model1597876831.8723085.pkl")) # 1: 9.83
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint_Ebbinghaus_format02/model2.pkl"))
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/model_batch1500000.pkl"))
+model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/originmodel_batch1450000.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
 Allepoch_batch = 0
 test_epoch = 1
-
+All_batchsize = 0
 for epoch in range(test_epoch):
     # print("Epoch{}/{}".format(epoch + 1, n_epochs))
     # print("-"*10)
@@ -110,21 +111,21 @@ for epoch in range(test_epoch):
         loss = cost(y_pred, y)
 
         Step_loss += loss.item()
-        Average_loss += Step_loss
+        Average_loss += (Step_loss * BATCH_SIZE)
 
         step_time = time.time() - step_starttime
         all_time = time.time() - all_starttime
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-
+        All_batchsize += BATCH_SIZE
         if inepoch_batch%1 == 0:
             print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
                                                                         n_epochs,
                                                                         inepoch_batch, 
-                                                                        Average_loss / (BATCH_SIZE * Allepoch_batch), 
-                                                                        100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
-                                                                        Step_loss / BATCH_SIZE, 
+                                                                        Average_loss / All_batchsize, 
+                                                                        100 * Average_correct / All_batchsize,
+                                                                        Step_loss,
                                                                         100 * Step_correct / BATCH_SIZE,
                                                                         step_time % 60,
                                                                         all_time // 60,

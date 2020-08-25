@@ -4,7 +4,7 @@ Version: 1.0
 Autor: Vicro
 Date: 2020-08-20 22:42:20
 LastEditors: Vicro
-LastEditTime: 2020-08-21 20:53:39
+LastEditTime: 2020-08-21 22:01:21
 '''
 
 
@@ -219,7 +219,7 @@ for xunhuancishu in range(4):
             Step_correct = float(torch.sum(pred == y.data))
             Average_correct += Step_correct
         
-            logger.info("Epoch:{} Batch:{} Batchsize:{} Ave_Loss:{:.5f} Ave_Acc:{:.2f} Step_Loss:{:.5f} Step_Acc:{:.2f} Step_Time:{:.3f}s All_Time:{:.0f}min{:.2f}s All_data:{} All_batch:{}".format(
+            logger.info("Epoch: {} Batch: {} Batchsize: {} Ave_Loss: {:.5f} Ave_Acc: {:.2f} Step_Loss: {:.5f} Step_Acc: {:.2f} Step_Time: {:.3f}s All_Time: {:.0f} min {:.2f} s All_data: {} All_batch: {} Q_Length: {} {}".format(
                                                                         xunhuancishu+1,
                                                                         NOW_BATCH, 
                                                                         BATCH_SIZE,
@@ -231,7 +231,10 @@ for xunhuancishu in range(4):
                                                                         all_time // 60,
                                                                         all_time % 60,
                                                                         All_batchsize,
-                                                                        All_batch))
+                                                                        All_batch,
+                                                                        len(queue_dict),
+                                                                        len(queue_dict[str(NOW_BATCH+1)])
+                                                                        ))
 
             # logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
             #         filename='ebbinghaus.log',

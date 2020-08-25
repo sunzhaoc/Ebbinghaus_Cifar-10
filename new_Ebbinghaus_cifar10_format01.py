@@ -121,6 +121,7 @@ def Fix_Batchsize(data, step, batch_size):
     i = 1
     if len(now_list)<batch_size:
         num = batch_size - len(now_list)
+        
         for i in range(1, len(data)):
             next_list = Construct_Now_List(data, step+i)
             for j in next_list:

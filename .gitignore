@@ -2,3 +2,6 @@
 *.png
 *.pkl
 *.zip
+*.log
+*.csv
+*.txt

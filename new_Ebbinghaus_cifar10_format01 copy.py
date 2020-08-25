@@ -1,10 +1,10 @@
 '''
-Description:  Add-logging
+Description:  Add-logging 6714
 Version: 1.0
 Autor: Vicro
 Date: 2020-08-22 19:49:19
 LastEditors: Vicro
-LastEditTime: 2020-08-24 09:59:32
+LastEditTime: 2020-08-24 22:37:58
 '''
 
 
@@ -25,8 +25,8 @@ import time
 WHETHER_LOG = True
 WHETHER_SAVE_MODEL = True
 
-ORIGIN_BATCHSIZE = 200
-BATCH_SIZE = 200
+ORIGIN_BATCHSIZE = 1
+BATCH_SIZE = 10
 
 ebbinghaus_list = [0,1,6,144,288,576,1152,2016,4320]
 
@@ -108,6 +108,9 @@ def Updata_Queue_Dict(data, now_list, y, y_predict, step):
     # True Data
     for i in same_data:
         data[i] = data[i][data[i].index(step)+1:]
+        # Make Sure Every Data will not be deleted completed
+        if not data[i]:
+            data[i] = [step+4320]
         
     return data
 
@@ -115,6 +118,7 @@ def Updata_Queue_Dict(data, now_list, y, y_predict, step):
 def Fix_Batchsize(data, step, batch_size):
     now_list = Construct_Now_List(data, step)
     if len(now_list)>batch_size:
+        print("Push")
         more_list = now_list[batch_size-len(now_list):]
         for i in more_list:
             more_ebbinghaus_list = [j+1 for j in data[i]]
@@ -122,8 +126,15 @@ def Fix_Batchsize(data, step, batch_size):
 
     i = 1
     if len(now_list)<batch_size:
+        print("Pull")
         num = batch_size - len(now_list)
-        for i in range(1, len(data)):
+        max_step = []
+        for i in data:
+            max_step.append(max(data[i]))
+        max_step = max(max_step)
+        
+        # temp_list = now_list
+        for i in range(1, max_step):
             next_list = Construct_Now_List(data, step+i)
             for j in next_list:
                 if j not in now_list:
@@ -171,6 +182,7 @@ def Model_Set():
 
 def Train(step, model, BATCH_SIZE, optimizer, scheduler, cost, use_gpu):
     global logger
+
     # Load Data
     transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                     transforms.ToTensor(),
@@ -205,44 +217,49 @@ def Train(step, model, BATCH_SIZE, optimizer, scheduler, cost, use_gpu):
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-    
-        logger.info("Step: {} Batchsize: {} Ave_Loss: {:.5f} Ave_Acc: {:.2f} Step_Loss: {:.5f} Step_Acc: {:.2f} All_data: {}".format(
-                                                                    step, 
-                                                                    BATCH_SIZE,
-                                                                    Average_loss / ((step+1)*BATCH_SIZE), 
-                                                                    100 * Average_correct / ((step+1)*BATCH_SIZE),
-                                                                    Step_loss,
-                                                                    100 * Step_correct / BATCH_SIZE,
-                                                                    (step+1)*BATCH_SIZE
-                                                                    ))
+
+        data_used_rate = Data_Usage_Rate(now_list)
+        logger.info("Step: {} Batchsize: {} Ave_Loss: {:.5f} Ave_Acc: {:.2f} % Step_Loss: {:.5f} Step_Acc: {:.2f} % All_data: {} Train_Time: {:.0f} h {:.0f} m {:.2f} s Used: {} % {:.0f}/{}".format(
+            step,
+            BATCH_SIZE,
+            Average_loss / ((step+1)*BATCH_SIZE),
+            100 * Average_correct / ((step+1)*BATCH_SIZE),
+            Step_loss,
+            100 * Step_correct / BATCH_SIZE,
+            (step+1)*BATCH_SIZE,
+            (time.time()-start_time) // 3600,   # hour
+            ((time.time()-start_time) // 60) - 60*((time.time()-start_time) // 3600),   # min
+            (time.time()-start_time) % 60,    # sec
+            data_used_rate,
+            data_used_rate * 50000 /100,
+            50000
+            ))
+        if WHETHER_LOG: 
+            logging.basicConfig(level=logging.INFO,
+                                filename='ebbinghaus.log',
+                                filemode='a',
+                                format='%(asctime)s - %(levelname)s: %(message)s')
+
         y = y.tolist()
         y_predict = pred.tolist()
         
-        if WHETHER_LOG:
-            logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
-                    filename='ebbinghaus.log',
-                    filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
-                    #a是追加模式，默认如果不写的话，就是追加模式
-                    # format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
-                    format='%(asctime)s - %(levelname)s: %(message)s'
-                    #日志格式
-                    )
-                
+
         return y, y_predict, (step+1)*BATCH_SIZE
 
 
 def Data_Usage_Rate(data):
     global Used_data
+    # Used data
     if len(Used_data)<50000:
         Used_data += data
         Used_data = list(set(Used_data))
-        print("{}%" .format(100*len(Used_data)/50000))
+        return (100*len(Used_data)/50000)
     else:
-        print("100%")
+        return (100)
 
 
 torch.manual_seed(1)    # Set random seed
-logger = logging.getLogger()
+logger = logging.getLogger("Ebbinghaus")
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -252,18 +269,20 @@ all_data_file = os.listdir('Z:/STUDY/all_cifar') # Data Directory
 
 Average_loss = 0.0
 Average_correct = 0.0
+start_time = time.time()
 Used_data = []
 
 model, optimizer, scheduler, cost, use_gpu = Model_Set()
 queue_dict = Construct_Queue_Dict(all_data_file, ORIGIN_BATCHSIZE)
 for step in range(99999999):
     queue_dict = Fix_Batchsize(queue_dict, step, BATCH_SIZE)
+
     now_list = Construct_Now_List(queue_dict, step)
     Delete_Move_Data(now_list)
     y, y_predict, used_data = Train(step, model, BATCH_SIZE, optimizer, scheduler, cost, use_gpu)
     queue_dict = Updata_Queue_Dict(queue_dict, now_list, y, y_predict, step)
 
     Data_Usage_Rate(now_list)
-    if WHETHER_SAVE_MODEL:
-        if used_data%500000==0:
-            torch.save(model.state_dict(), ("Z:/STUDY/checkpoint/model_batch" + str((step+1)*BATCH_SIZE) + ".pkl"))
+    if used_data%500000==0:
+        if WHETHER_SAVE_MODEL:
+            torch.save(model.state_dict(), ("Z:/STUDY/checkpoint/model_batch" + str((step+1)*BATCH_SIZE) + ".pkl"))              

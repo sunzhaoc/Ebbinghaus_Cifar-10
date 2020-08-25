@@ -4,7 +4,7 @@ Version: 1.0
 Autor: Vicro
 Date: 2020-08-20 22:42:20
 LastEditors: Vicro
-LastEditTime: 2020-08-21 00:23:09
+LastEditTime: 2020-08-21 10:59:56
 '''
 
 
@@ -18,7 +18,7 @@ import shutil
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from torch.autograd import Variable 
+from torch.autograd import Variable
 import time
 # from tensorboardX import SummaryWriter
 
@@ -39,7 +39,7 @@ all_starttime = time.time()
 """ Construct Queue Dict """
 for i in range(len(all_data_file)//SMALL_BATCH_SIZE):
 # for i in range(20):
-    for num in [0, 1, 2, 4, 7, 15]:
+    for num in [0,1,6,144,288,576,1152,2016,4320]:
         if (i==0) and (num==0):
             # queue_dict[str(i+num)] = all_data_file[i*BATCH_SIZE: i*BATCH_SIZE+BATCH_SIZE]
             queue_dict = {str(i): all_data_file[i*SMALL_BATCH_SIZE: i*SMALL_BATCH_SIZE+SMALL_BATCH_SIZE]}
@@ -56,7 +56,7 @@ print(use_gpu)
 
 # Load Model
 model = models.vgg19(pretrained = True)
-# print(model) 
+# print(model)
 for parma in model.parameters():
     parma.requires_grad = False # 不进行梯度更新
 model.classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096),
@@ -85,7 +85,7 @@ Average_correct = 0
 Allepoch_batch = 0
 All_batchsize = 0
 All_batch = 0
-for xunhuancishu in range(50):
+for xunhuancishu in range(4):
     for NOW_BATCH in range(99999999):
         # 1. Delete Data
         for i in os.listdir('Z:/STUDY/tempcifar10'):
@@ -141,7 +141,7 @@ for xunhuancishu in range(50):
         transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                         transforms.ToTensor(),
                                         transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
-        
+
         try:
             data_image = datasets.ImageFolder(root = 'Z:/STUDY/tempcifar10', transform = transform)
         except RuntimeError:
@@ -149,7 +149,7 @@ for xunhuancishu in range(50):
         data_loader_image = torch.utils.data.DataLoader(dataset=data_image,
                                                         batch_size = BATCH_SIZE,
                                                         shuffle = True)
-        
+
         # 5. Train
         model.train = True
         step_starttime = time.time()
@@ -159,7 +159,7 @@ for xunhuancishu in range(50):
                 X, y = Variable(X.cuda()), Variable(y.cuda())
             else:
                 X,y = Variable(X), Variable(y)
-            
+
             optimizer.zero_grad()
 
             y_pred = model(X)
@@ -168,7 +168,7 @@ for xunhuancishu in range(50):
 
             loss.backward()
             optimizer.step()
-            
+
             scheduler.step()
 
             lr_list.append(optimizer.state_dict()['param_groups'][0]['lr'])
@@ -183,25 +183,25 @@ for xunhuancishu in range(50):
             Average_correct += Step_correct
             # print("Epoch: {}  Batch: {}  BATCHSIZE: {} Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s  AllBATCH: {}".format(
             #                                                             xunhuancishu+1,
-            #                                                             NOW_BATCH, 
+            #                                                             NOW_BATCH,
             #                                                             BATCH_SIZE,
-            #                                                             Average_loss / All_batchsize, 
+            #                                                             Average_loss / All_batchsize,
             #                                                             100 * Average_correct / All_batchsize,
-            #                                                             Step_loss / BATCH_SIZE, 
+            #                                                             Step_loss / BATCH_SIZE,
             #                                                             100 * Step_correct / BATCH_SIZE,
             #                                                             step_time % 60,
             #                                                             all_time // 60,
             #                                                             all_time % 60,
             #                                                             All_batchsize))
 
-        
+
             logger.info("Epoch:{} Batch:{} Batchsize:{} Ave_Loss:{:.5f} Ave_Acc:{:.2f} Step_Loss:{:.5f} Step_Acc:{:.2f} Step_Time:{:.3f}s All_Time:{:.0f}min{:.2f}s All_data:{} All_batch:{}".format(
                                                                         xunhuancishu+1,
-                                                                        NOW_BATCH, 
+                                                                        NOW_BATCH,
                                                                         BATCH_SIZE,
-                                                                        Average_loss / All_batchsize, 
+                                                                        Average_loss / All_batchsize,
                                                                         100 * Average_correct / All_batchsize,
-                                                                        Step_loss / BATCH_SIZE, 
+                                                                        Step_loss / BATCH_SIZE,
                                                                         100 * Step_correct / BATCH_SIZE,
                                                                         step_time % 60,
                                                                         all_time // 60,
@@ -220,7 +220,7 @@ for xunhuancishu in range(50):
         # 6. Adjust Data
         y = y.tolist()
         y_predict = pred.tolist()
-        
+
         same_index = []
         dif_index = []
 
@@ -232,9 +232,13 @@ for xunhuancishu in range(50):
 
 
         """ Update Queue Dict"""
+        if xunhuancishu==0:
+            liebiao = [1,6,144,288,576,1152,2016,4320]
+            max_liebiao = liebiao[7]
+
         for i in dif_index:
             # Delete Element
-            for num in range(15):
+            for num in range(max_liebiao):
                 if str(NOW_BATCH+num+1) in queue_dict.keys():
                     if queue_dict[str(NOW_BATCH)][i] in queue_dict[str(NOW_BATCH+num+1)]:
                         queue_dict[str(NOW_BATCH+num+1)].remove(queue_dict[str(NOW_BATCH)][i])
@@ -243,15 +247,15 @@ for xunhuancishu in range(50):
                     if queue_dict[str(NOW_BATCH)][i] in queue_dict[str(NOW_BATCH+num+1)]:
                         queue_dict[str(NOW_BATCH+num+1)].remove(queue_dict[str(NOW_BATCH)][i])
             # Append Element
-            for num in [1, 2, 4, 7, 15]:
+            for num in liebiao:
                 if str(NOW_BATCH+num) in queue_dict.keys():
                     queue_dict[str(NOW_BATCH+num)].append(queue_dict[str(NOW_BATCH)][i])
                 else:
                     queue_dict[str(NOW_BATCH+num)] = [queue_dict[str(NOW_BATCH)][i]]
-        
+
         del_index = []
         for i in same_index:
-            for num in range(15):
+            for num in range(max_liebiao):
                 if str(NOW_BATCH+num+1) in queue_dict.keys():
                     if queue_dict[str(NOW_BATCH)][i] in queue_dict[str(NOW_BATCH+num+1)]:
                         del_index.append(i)
@@ -263,7 +267,7 @@ for xunhuancishu in range(50):
         for i in del_index:
             del queue_dict[str(NOW_BATCH)][i]
 
-        if (NOW_BATCH%1000) == 0:
-            time.sleep(10)
+        # if (NOW_BATCH%1000) == 0:
+            # time.sleep(10)
     
     time.sleep(180)

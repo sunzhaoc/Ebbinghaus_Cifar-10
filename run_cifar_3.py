@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-20 05:25:55
+LastEditTime: 2020-08-20 06:58:00
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -96,7 +96,7 @@ for epoch in range(n_epochs):
         y_pred = model(X)
         _,pred = torch.max(y_pred.data, 1)
         loss = cost(y_pred, y)
-
+        
         print(pred.tolist())
         print(y.tolist())
 

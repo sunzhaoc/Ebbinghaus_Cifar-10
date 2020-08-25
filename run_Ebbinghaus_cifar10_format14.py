@@ -4,7 +4,7 @@ Version: 1.0
 Autor: Vicro
 Date: 2020-08-20 22:42:20
 LastEditors: Vicro
-LastEditTime: 2020-08-21 22:12:11
+LastEditTime: 2020-08-21 23:20:59
 '''
 
 
@@ -244,14 +244,14 @@ for xunhuancishu in range(4):
                                                                         len(queue_dict[str(NOW_BATCH+1)])
                                                                         ))
 
-            logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
-                    filename='new_ebbinghaus_newbatch_oldqueue.log',
-                    filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
-                    #a是追加模式，默认如果不写的话，就是追加模式
-                    # format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
-                    format='%(asctime)s - %(levelname)s: %(message)s'
-                    #日志格式
-                    )
+            # logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
+            #         filename='new_ebbinghaus_newbatch_oldqueue.log',
+            #         filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
+            #         #a是追加模式，默认如果不写的话，就是追加模式
+            #         # format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+            #         format='%(asctime)s - %(levelname)s: %(message)s'
+            #         #日志格式
+            #         )
         # 6. Adjust Data
         y = y.tolist()
         y_predict = pred.tolist()
@@ -302,8 +302,8 @@ for xunhuancishu in range(4):
         for i in del_index:
             del queue_dict[str(NOW_BATCH)][i]
         
-        if (All_batchsize%50000==0):
-            torch.save(model.state_dict(), ("Z:/STUDY/checkpoint/model_batch"+str(All_batchsize)+".pkl"))
+        # if (All_batchsize%50000==0):
+        #     torch.save(model.state_dict(), ("Z:/STUDY/checkpoint/model_batch"+str(All_batchsize)+".pkl"))
 
     
     time.sleep(90)

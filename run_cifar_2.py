@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-19 23:49:28
+LastEditTime: 2020-08-24 13:17:47
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -17,11 +17,11 @@ from torch.autograd import Variable
 import time
 torch.manual_seed(1)
 all_starttime = time.time()
-BATCH_SIZE = 6
-n_epochs = 6
-checkpoint_path = "./small_checkpoint/"
+BATCH_SIZE = 100
+n_epochs = 20
+checkpoint_path = "Z:/STUDY/checkpoint/"
 
-train_path = "./cifar10_train"
+train_path = "Z:/STUDY/cifar10_train"
 transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
@@ -120,8 +120,8 @@ for epoch in range(n_epochs):
                                                                         step_time % 60,
                                                                         all_time // 60,
                                                                         all_time % 60))
-    if epoch%20 ==0:                                                                    
-        torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
+    # if epoch%20 ==0:
+    #     torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
     
 
-torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
+torch.save(model.state_dict(), ("Z:/STUDY/checkpoint/model"+str(time.time())+".pkl"))

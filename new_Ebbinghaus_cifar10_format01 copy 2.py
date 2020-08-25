@@ -4,7 +4,7 @@ Version: 1.0
 Autor: Vicro
 Date: 2020-08-22 19:49:19
 LastEditors: Vicro
-LastEditTime: 2020-08-24 22:11:54
+LastEditTime: 2020-08-25 03:53:49
 '''
 
 
@@ -25,10 +25,10 @@ import time
 WHETHER_LOG = False
 WHETHER_SAVE_MODEL = True
 
-ORIGIN_BATCHSIZE = 50
+ORIGIN_BATCHSIZE = 500
 BATCH_SIZE = 200
 
-ebbinghaus_list = [0, 1, 6, 144, 288, 576, 1152, 2016, 4320]
+ebbinghaus_list = [0, 1, 6, 144, 288, 576]
 
 add_liebiao = ebbinghaus_list[1:]
 del_liebiao = [0]
@@ -280,6 +280,9 @@ def Pull_Batchsize(data, step, batch_size):
             data[str(i)] = data[str(i+move_step)]
         for i in range(len(data)-move_step, len(data)):
             del data[str(i)]
+        return data
+    else:
+        return data
 
 
 def Model_Set():
