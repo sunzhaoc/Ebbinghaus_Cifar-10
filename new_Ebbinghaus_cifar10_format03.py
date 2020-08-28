@@ -1,10 +1,10 @@
 '''
-Description:  Add-logging 6714
+Description:  cycle_queue - pro
 Version: 1.0
 Autor: Vicro
 Date: 2020-08-22 19:49:19
 LastEditors: Vicro
-LastEditTime: 2020-08-25 15:28:44
+LastEditTime: 2020-08-25 15:55:14
 '''
 
 
@@ -120,6 +120,11 @@ def Updata_Queue_Dict(data, now_list, y, y_predict, step):
         # Make Sure Every Data will not be deleted completed
         if not data[i]:
             data[i] = [step+4320]
+            for j in data[i]:
+                if j>max_list_limit:
+                    data[i].append(j-(max_list_limit+1))
+                    data[i].remove(j)
+
         
     return data
 
@@ -150,7 +155,13 @@ def Fix_Batchsize(data, step, batch_size):
             for j in next_list:
                 if j not in now_list:
                     less_ebbinghaus_list = [k-(i-step) for k in data[j]]
-                    data[j] = less_ebbinghaus_list
+                    temp_less_ebbinghaus_list = less_ebbinghaus_list
+                    for k in less_ebbinghaus_list:
+                        if k<0:
+                            temp_less_ebbinghaus_list.remove(k)
+                            temp_less_ebbinghaus_list.append(max_list_limit+k+1)
+
+                    data[j] = temp_less_ebbinghaus_list
                     now_list.append(j)
                     num -= 1
                     if num == 0:
@@ -162,14 +173,14 @@ def Fix_Batchsize(data, step, batch_size):
                 next_list = Construct_Now_List(data, i)
                 for j in next_list:
                     if j not in now_list:
-                        less_ebbinghaus_list = [k-(max_list_limit+i-step) for k in data[j]]
+                        less_ebbinghaus_list = [k-(max_list_limit-step+i+1) for k in data[j]]
                         temp_less_ebbinghaus_list = less_ebbinghaus_list
                         for k in less_ebbinghaus_list:
                             if k<0:
                                 temp_less_ebbinghaus_list.remove(k)
                                 
                                 temp_less_ebbinghaus_list.append(max_list_limit+k+1)
-                        data[j] = less_ebbinghaus_list
+                        data[j] = temp_less_ebbinghaus_list
                         now_list.append(j)
                         num -= 1
                         if num == 0:
