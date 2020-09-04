@@ -59,8 +59,8 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # model.load_state_dict(torch.load("./checkpoint_Ebbinghaus/model32.pkl"))
 Average_loss = 0.0
 Average_correct = 0
-Allepoch_batch = 0
-All_batchsize = 0
+All_step = 0
+All_input_pic = 0
 all_starttime = time.time()
 ### 开始训练模型
 for epoch in range(n_epochs):
@@ -74,7 +74,7 @@ for epoch in range(n_epochs):
         step_starttime = time.time()
         
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
 
         # 计算batchsize
         BATCH_SIZE = 0;
@@ -85,7 +85,7 @@ for epoch in range(n_epochs):
             sub_file = os.listdir(sub_path)
             BATCH_SIZE += len(sub_file)
         # print(BATCH_SIZE)
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
 
         # 创建队列
         transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
@@ -123,15 +123,15 @@ for epoch in range(n_epochs):
             Step_correct = float(torch.sum(pred == y.data))
             Average_correct += Step_correct
             if inepoch_batch%1 == 0:
-                print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch+1,
-                                                                            n_epochs, 
-                                                                            inepoch_batch, 
-                                                                            Average_loss / All_batchsize, 
-                                                                            100 * Average_correct / All_batchsize,
-                                                                            Step_loss / BATCH_SIZE, 
-                                                                            100 * Step_correct / BATCH_SIZE,
-                                                                            step_time % 60,
-                                                                            all_time // 60,
-                                                                            all_time % 60))
+                print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
+                                                                                                                                                                                n_epochs,
+                                                                                                                                                                                inepoch_batch,
+                                                                                                                                                                                Average_loss / All_input_pic,
+                                                                                                                                                                                100 * Average_correct / All_input_pic,
+                                                                                                                                                                                Step_loss / BATCH_SIZE,
+                                                                                                                                                                                100 * Step_correct / BATCH_SIZE,
+                                                                                                                                                                                step_time % 60,
+                                                                                                                                                                                all_time // 60,
+                                                                                                                                                                                all_time % 60))
     
     torch.save(model.state_dict(), ("./small_checkpoint_Ebbinghaus/model"+str(time.time())+".pkl"))

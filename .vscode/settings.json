@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "X:\\Anaconda3\\envs\\pytorch\\python.exe",
+    "python.pythonPath": "X:\\Anaconda\\envs\\pytorch\\python.exe",
     "git.ignoreLimitWarning": true
 }

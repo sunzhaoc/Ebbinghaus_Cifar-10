@@ -20,10 +20,10 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 import time
 
-WHETHER_LOG = False
-WHETHER_SAVE_MODEL = False
+WHETHER_LOG = True
+WHETHER_SAVE_MODEL = True
 LOG_NAME = 'ebbinghaus2.log'
-SAVE_PATH = "Z:/STUDY/checkpoint/05/Ebbinghaus/"
+SAVE_PATH = "Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/05/Ebbinghaus/"
 
 ORIGIN_BATCHSIZE = 50000
 BATCH_SIZE = 200

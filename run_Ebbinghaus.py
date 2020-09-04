@@ -64,7 +64,7 @@ for epoch in range(n_epochs):
     batch = 0
     Average_loss = 0.0
     Average_correct = 0
-    All_batchsize = 0
+    All_input_pic = 0
     all_starttime = time.time()
 
     for path in folder_file:
@@ -82,7 +82,7 @@ for epoch in range(n_epochs):
             sub_file = os.listdir(sub_path)
             BATCH_SIZE += len(sub_file)
         # print(BATCH_SIZE)
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
 
         # 创建队列
         transform = transforms.Compose([transforms.CenterCrop(224), # Crop from the middle
@@ -122,14 +122,14 @@ for epoch in range(n_epochs):
             Average_correct += Step_correct
 
             if batch%1 == 0:
-                print("Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(batch, 
-                                                                            Average_loss / All_batchsize, 
-                                                                            100 * Average_correct / All_batchsize,
-                                                                            Step_loss / BATCH_SIZE, 
-                                                                            100 * Step_correct / BATCH_SIZE,
-                                                                            step_time % 60,
-                                                                            all_time // 60,
-                                                                            all_time % 60))
+                print("Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(batch,
+                                                                                                                                                                     Average_loss / All_input_pic,
+                                                                                                                                                                     100 * Average_correct / All_input_pic,
+                                                                                                                                                                     Step_loss / BATCH_SIZE,
+                                                                                                                                                                     100 * Step_correct / BATCH_SIZE,
+                                                                                                                                                                     step_time % 60,
+                                                                                                                                                                     all_time // 60,
+                                                                                                                                                                     all_time % 60))
                 
         # epoch_loss = running_loss/len(data_image[param])
         # epoch_correct = 100*running_correct/len(data_image[param])

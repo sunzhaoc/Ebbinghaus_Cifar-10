@@ -33,8 +33,8 @@ BATCH_SIZE = 200
 n_epochs = 100
 checkpoint_path = "Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/05/data_argument/"
 train_path = "Y:/2020/Ebbinghaus-Cifar10/cifar10_train"
-WHETHER_MODEL = False
-WHETHER_LOG = False
+WHETHER_MODEL = True
+WHETHER_LOG = True
 LOG_NAME = 'vgg16_pro_data_argument.txt'
 
 

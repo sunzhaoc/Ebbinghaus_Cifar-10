@@ -4,7 +4,7 @@ Version: 1.0
 Autor: Vicro
 Date: 2020-08-22 19:49:19
 LastEditors: Vicro
-LastEditTime: 2020-08-25 15:55:14
+LastEditTime: 2020-08-25 23:28:29
 '''
 
 
@@ -28,7 +28,8 @@ WHETHER_SAVE_MODEL = True
 ORIGIN_BATCHSIZE = 50000
 BATCH_SIZE = 200
 
-ebbinghaus_list = [0,1,6,144,288,576,1152,2016,4320]
+ebbinghaus_list = [0,1,6,144,288,576]
+# ebbinghaus_list = [0,1]
 max_list_limit = max(ebbinghaus_list)+1
 
 def Construct_Queue_Dict(data, batch_size):
@@ -119,7 +120,7 @@ def Updata_Queue_Dict(data, now_list, y, y_predict, step):
 
         # Make Sure Every Data will not be deleted completed
         if not data[i]:
-            data[i] = [step+4320]
+            data[i] = [step+max(ebbinghaus_list)]
             for j in data[i]:
                 if j>max_list_limit:
                     data[i].append(j-(max_list_limit+1))
@@ -262,13 +263,13 @@ def Train(step, model, BATCH_SIZE, optimizer, scheduler, cost, use_gpu):
         data_used_rate = Data_Usage_Rate(now_list)
         logger.info("Epoch: {} Step: {} Batchsize: {} Ave_Loss: {:.5f} Ave_Acc: {:.2f} % Step_Loss: {:.5f} Step_Acc: {:.2f} % All_data: {} Train_Time: {:.0f} h {:.0f} m {:.2f} s Used: {} % {:.0f}/{}".format(
             epoch+1,
-            step,
+            All_step,
             BATCH_SIZE,
-            Average_loss / ((step+1)*BATCH_SIZE),
-            100 * Average_correct / ((step+1)*BATCH_SIZE),
+            Average_loss / ((All_step+1)*BATCH_SIZE),
+            100 * Average_correct / ((All_step+1)*BATCH_SIZE),
             Step_loss,
             100 * Step_correct / BATCH_SIZE,
-            (step+1)*BATCH_SIZE,
+            (All_step+1)*BATCH_SIZE,
             (time.time()-start_time) // 3600,   # hour
             ((time.time()-start_time) // 60) - 60*((time.time()-start_time) // 3600),   # min
             (time.time()-start_time) % 60,    # sec
@@ -286,7 +287,7 @@ def Train(step, model, BATCH_SIZE, optimizer, scheduler, cost, use_gpu):
         y_predict = pred.tolist()
         
 
-        return y, y_predict, (step+1)*BATCH_SIZE
+        return y, y_predict, (All_step+1)*BATCH_SIZE
 
 
 def Data_Usage_Rate(data):
@@ -311,13 +312,15 @@ all_data_file = os.listdir('Z:/STUDY/all_cifar') # Data Directory
 
 Average_loss = 0.0
 Average_correct = 0.0
+All_step = -1
 start_time = time.time()
 Used_data = []
-
 model, optimizer, scheduler, cost, use_gpu = Model_Set()
 queue_dict = Construct_Queue_Dict(all_data_file, ORIGIN_BATCHSIZE)
+
 for epoch in range(99999999):
     for step in range(max_list_limit+1):
+        All_step += 1
         queue_dict = Fix_Batchsize(queue_dict, step, BATCH_SIZE)
 
         now_list = Construct_Now_List(queue_dict, step)

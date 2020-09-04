@@ -4,12 +4,13 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-24 23:24:01
+LastEditTime: 2020-09-03 23:40:33
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
 import torchvision
 from torchvision import datasets, transforms, models
+import logging
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,7 +19,14 @@ import time
 torch.manual_seed(1)
 all_starttime = time.time()
 BATCH_SIZE = 1
-n_epochs = 120
+n_epochs = 1
+torch.manual_seed(1)    # Set random seed
+logger = logging.getLogger("Ebbinghaus")
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
 # checkpoint_path = "./checkpoint/"
 
 test_path =  "./cifar10_test"
@@ -44,7 +52,8 @@ for parma in model.parameters():
     parma.requires_grad = False # 不进行梯度更新
 
 # 改变模型的全连接层，因为原模型是输出1000个类，本项目只需要输出2类
-model.classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096),
+model.avgpool = torch.nn.Sequential(torch.nn.AvgPool2d(kernel_size=1, stride=1))
+model.classifier = torch.nn.Sequential(torch.nn.Linear(512, 4096),
                                        torch.nn.ReLU(),
                                        torch.nn.Dropout(p=0.5),
                                        torch.nn.Linear(4096, 4096),
@@ -74,13 +83,17 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # model.load_state_dict(torch.load("./small_checkpoint/model1597854121.9655204.pkl")) # 6: 12.45
 # model.load_state_dict(torch.load("./small_checkpoint_Ebbinghaus/model1597876831.8723085.pkl")) # 1: 9.83
 # model.load_state_dict(torch.load("Z:/STUDY/checkpoint_Ebbinghaus_format02/model2.pkl"))
-# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/model_batch1500000.pkl"))
-model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/originmodel_batch1450000.pkl"))
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/model_batch10000000.pkl"))
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/originmodel_batch5950000.pkl"))
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/02Data_Argumentmodel_batch10000000.pkl"))
+model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/05/origin2/model_batch100.pkl"))
+# model.load_state_dict(torch.load("Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/05/Ebbinghaus/model_batch13.pkl"))
+
 Average_loss = 0.0
 Average_correct = 0.0
-Allepoch_batch = 0
+All_step = 0
 test_epoch = 1
-All_batchsize = 0
+All_input_pic = 0
 for epoch in range(test_epoch):
     # print("Epoch{}/{}".format(epoch + 1, n_epochs))
     # print("-"*10)
@@ -95,7 +108,7 @@ for epoch in range(test_epoch):
         step_starttime = time.time()
         
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
 
         X, y = data
 
@@ -118,15 +131,15 @@ for epoch in range(test_epoch):
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
         if inepoch_batch%1 == 0:
-            print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
-                                                                        n_epochs,
-                                                                        inepoch_batch, 
-                                                                        Average_loss / All_batchsize, 
-                                                                        100 * Average_correct / All_batchsize,
-                                                                        Step_loss,
-                                                                        100 * Step_correct / BATCH_SIZE,
-                                                                        step_time % 60,
-                                                                        all_time // 60,
-                                                                        all_time % 60))
+            logger.info("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
+                                                                                                                                                                                  n_epochs,
+                                                                                                                                                                                  inepoch_batch,
+                                                                                                                                                                                  Average_loss / All_input_pic,
+                                                                                                                                                                                  100 * Average_correct / All_input_pic,
+                                                                                                                                                                                  Step_loss,
+                                                                                                                                                                                  100 * Step_correct / BATCH_SIZE,
+                                                                                                                                                                                  step_time % 60,
+                                                                                                                                                                                  all_time // 60,
+                                                                                                                                                                                  all_time % 60))

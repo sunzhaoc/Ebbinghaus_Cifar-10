@@ -74,8 +74,8 @@ lr_list = []
 
 Average_loss = 0.0
 Average_correct = 0
-Allepoch_batch = 0
-All_batchsize = 0
+All_step = 0
+All_input_pic = 0
 
 for xunhuancishu in range(10):
     for NOW_BATCH in range(99999999):
@@ -127,7 +127,7 @@ for xunhuancishu in range(10):
             sub_file = os.listdir(sub_path)
             BATCH_SIZE += len(sub_file)
         # print(BATCH_SIZE)
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
 
         # 4. Load Data
         transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
@@ -174,17 +174,17 @@ for xunhuancishu in range(10):
             Step_correct = float(torch.sum(pred == y.data))
             Average_correct += Step_correct
             print("Epoch: {}  Batch: {}  BATCHSIZE: {} Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s  AllBATCH: {}".format(
-                                                                        xunhuancishu+1,
+                xunhuancishu + 1,
                                                                         NOW_BATCH, 
                                                                         BATCH_SIZE,
-                                                                        Average_loss / All_batchsize, 
-                                                                        100 * Average_correct / All_batchsize,
-                                                                        Step_loss / BATCH_SIZE, 
-                                                                        100 * Step_correct / BATCH_SIZE,
-                                                                        step_time % 60,
-                                                                        all_time // 60,
-                                                                        all_time % 60,
-                                                                        All_batchsize))
+                Average_loss / All_input_pic,
+                100 * Average_correct / All_input_pic,
+                Step_loss / BATCH_SIZE,
+                100 * Step_correct / BATCH_SIZE,
+                step_time % 60,
+                all_time // 60,
+                all_time % 60,
+                                                                        All_input_pic))
         
         # 6. Adjust Data
         y = y.tolist()

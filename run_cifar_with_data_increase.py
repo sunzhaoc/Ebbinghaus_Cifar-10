@@ -4,7 +4,7 @@
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-12 00:10:53
+LastEditTime: 2020-08-28 10:05:29
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 import torch
@@ -68,10 +68,10 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # print(model)
 
 # 开始训练模型
-model.load_state_dict(torch.load("./checkpoint_data_agumentation/model120.pkl"))
+# model.load_state_dict(torch.load("./checkpoint_data_agumentation/model120.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
-Allepoch_batch = 0
+All_step = 0
 for epoch in range(n_epochs):
     model.train = True
 
@@ -84,7 +84,7 @@ for epoch in range(n_epochs):
         step_starttime = time.time()
 
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
 
         X, y = data
         if use_gpu:
@@ -114,9 +114,9 @@ for epoch in range(n_epochs):
                                                                                                                                                                             n_epochs,
                                                                                                                                                                             inepoch_batch,
                                                                                                                                                                             Average_loss /
-                                                                                                                                                                            (BATCH_SIZE * Allepoch_batch),
+                                                                                                                                                                            (BATCH_SIZE * All_step),
                                                                                                                                                                             100 * Average_correct /
-                                                                                                                                                                            (BATCH_SIZE * Allepoch_batch),
+                                                                                                                                                                            (BATCH_SIZE * All_step),
                                                                                                                                                                             Step_loss / BATCH_SIZE,
                                                                                                                                                                             100 * Step_correct / BATCH_SIZE,
                                                                                                                                                                             step_time % 60,

@@ -70,7 +70,7 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 # model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
-Allepoch_batch = 0
+All_step = 0
 for epoch in range(n_epochs):
     model.train = True
         
@@ -83,7 +83,7 @@ for epoch in range(n_epochs):
         step_starttime = time.time()
         
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
 
         X, y = data
         if use_gpu:
@@ -111,15 +111,15 @@ for epoch in range(n_epochs):
 
         if inepoch_batch%1 == 0:
             print("Epoch{}/{} Batch: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s".format(epoch + 1,
-                                                                        n_epochs,
-                                                                        inepoch_batch, 
-                                                                        Average_loss / (BATCH_SIZE * Allepoch_batch), 
-                                                                        100 * Average_correct / (BATCH_SIZE * Allepoch_batch),
-                                                                        Step_loss / BATCH_SIZE, 
-                                                                        100 * Step_correct / BATCH_SIZE,
-                                                                        step_time % 60,
-                                                                        all_time // 60,
-                                                                        all_time % 60))
+                                                                                                                                                                            n_epochs,
+                                                                                                                                                                            inepoch_batch,
+                                                                                                                                                                            Average_loss / (BATCH_SIZE * All_step),
+                                                                                                                                                                            100 * Average_correct / (BATCH_SIZE * All_step),
+                                                                                                                                                                            Step_loss / BATCH_SIZE,
+                                                                                                                                                                            100 * Step_correct / BATCH_SIZE,
+                                                                                                                                                                            step_time % 60,
+                                                                                                                                                                            all_time // 60,
+                                                                                                                                                                            all_time % 60))
     # if epoch%20 ==0:
     #     torch.save(model.state_dict(), ("./small_checkpoint/model"+str(time.time())+".pkl"))
     

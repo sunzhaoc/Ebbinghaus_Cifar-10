@@ -1,10 +1,10 @@
 '''
-@Description: Add Log and Loss
+@Description:RandomHorizontalFlip\RandomVerticalFlip\RandomVerticalFlip
 @Version: 1.0
 @Autor: Vicro
 @Date: 2020-07-25 22:58:37
 LastEditors: Vicro
-LastEditTime: 2020-08-24 13:17:10
+LastEditTime: 2020-08-28 10:06:10
 https://blog.csdn.net/AugustMe/article/details/93917551?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase
 '''
 
@@ -24,15 +24,22 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
+WHETHER_SAVE = True
+WHETHER_LOG = True
+checkpoint_path = "Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/VGG-16_Data_Argument"
+looging_name = 'vgg-16-data_argument.log'
+
 torch.manual_seed(1)
 all_starttime = time.time()
 BATCH_SIZE = 200
-n_epochs = 1000
+n_epochs = 210
 
-checkpoint_path = "Z:/STUDY/checkpoint/checkpoint_Ebbinghaus/04/origin"
 # train_path = "Z:/STUDY/cifar10_train"
 train_path = "Y:/2020/Ebbinghaus-Cifar10/cifar10_train"
-transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
+transform = transforms.Compose([transforms.CenterCrop(32),
+                                transforms.RandomHorizontalFlip(p=0.5),
+                                transforms.RandomVerticalFlip(p=0.5),
+                                transforms.RandomRotation(degrees=180),
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.5,0.5,0.5], [0.5,0.5,0.5])]) # Let Tensor from [0, 1] to [-1, 1]
 
@@ -82,8 +89,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=250, gamma=0.95
 # model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
-Allepoch_batch = 0
-All_batchsize = 0
+All_step = 0
+All_input_pic = 0
 step = 0
 
 for epoch in range(n_epochs):
@@ -96,7 +103,7 @@ for epoch in range(n_epochs):
         Step_correct = 0.0
                 
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
         step += 1
 
         X, y = data
@@ -122,22 +129,22 @@ for epoch in range(n_epochs):
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
         if inepoch_batch%1 == 0:
             logger.info("Epoch{}/{} Step: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f} Train_Time: {:.0f} h {:.0f} m {:.2f} s".format(
                 epoch + 1,
                 n_epochs,
                 step,
-                Average_loss / All_batchsize,
-                100 * Average_correct / All_batchsize,
+                Average_loss / All_input_pic,
+                100 * Average_correct / All_input_pic,
                 Step_loss,
                 100 * Step_correct / BATCH_SIZE,
                 all_time // 3600,
-                (all_time // 60)-60*(all_time // 3600),
+                (all_time // 60) - 60 * (all_time // 3600),
                 all_time % 60))
 
             logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
-                    filename='vgg16.log',
+                    filename=looging_name,
                     filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
                     #a是追加模式，默认如果不写的话，就是追加模式
                     # format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
@@ -145,5 +152,5 @@ for epoch in range(n_epochs):
                     #日志格式
                     )
             
-    if (epoch+1)%10 == 0: 
-        torch.save(model.state_dict(), (checkpoint_path+"model_batch"+str(epoch*50000)+".pkl"))
+    if ((epoch+1)%10 == 0) and WHETHER_SAVE:
+        torch.save(model.state_dict(), (checkpoint_path+"model_batch"+str((epoch+1)*50000)+".pkl"))

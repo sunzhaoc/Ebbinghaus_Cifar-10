@@ -82,8 +82,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=250, gamma=0.95
 # model.load_state_dict(torch.load("./checkpoint/model20.pkl"))
 Average_loss = 0.0
 Average_correct = 0.0
-Allepoch_batch = 0
-All_batchsize = 0
+All_step = 0
+All_input_pic = 0
 step = 0
 
 for epoch in range(n_epochs):
@@ -96,7 +96,7 @@ for epoch in range(n_epochs):
         Step_correct = 0.0
                 
         inepoch_batch += 1
-        Allepoch_batch += 1
+        All_step += 1
         step += 1
 
         X, y = data
@@ -122,18 +122,18 @@ for epoch in range(n_epochs):
 
         Step_correct = float(torch.sum(pred == y.data))
         Average_correct += Step_correct
-        All_batchsize += BATCH_SIZE
+        All_input_pic += BATCH_SIZE
         if inepoch_batch%1 == 0:
             logger.info("Epoch{}/{} Step: {}  Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f} Train_Time: {:.0f} h {:.0f} m {:.2f} s".format(
                 epoch + 1,
                 n_epochs,
                 step,
-                Average_loss / All_batchsize,
-                100 * Average_correct / All_batchsize,
+                Average_loss / All_input_pic,
+                100 * Average_correct / All_input_pic,
                 Step_loss,
                 100 * Step_correct / BATCH_SIZE,
                 all_time // 3600,
-                (all_time // 60)-60*(all_time // 3600),
+                (all_time // 60) - 60 * (all_time // 3600),
                 all_time % 60))
 
             logging.basicConfig(level=logging.INFO,#控制台打印的日志级别

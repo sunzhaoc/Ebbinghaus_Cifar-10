@@ -67,8 +67,8 @@ optimizer = torch.optim.Adam(model.classifier.parameters())
 
 Average_loss = 0.0
 Average_correct = 0
-Allepoch_batch = 0
-All_batchsize = 0
+All_step = 0
+All_input_pic = 0
 
 for NOW_BATCH in range(len(all_data_file)//SMALL_BATCH_SIZE):
     # 1. Delete Data
@@ -115,7 +115,7 @@ for NOW_BATCH in range(len(all_data_file)//SMALL_BATCH_SIZE):
         sub_file = os.listdir(sub_path)
         BATCH_SIZE += len(sub_file)
     # print(BATCH_SIZE)
-    All_batchsize += BATCH_SIZE
+    All_input_pic += BATCH_SIZE
 
     # 4. Load Data
     transform = transforms.Compose([transforms.CenterCrop(32), # Crop from the middle
@@ -157,14 +157,14 @@ for NOW_BATCH in range(len(all_data_file)//SMALL_BATCH_SIZE):
         print("Batch: {}  BATCHSIZE: {} Ave_Loss: {:.5f}  Ave_Acc: {:.2f}  Step_Loss: {:.5f}  Step_Acc: {:.2f}  Step_Time: {:.3f} s  All_Time: {:.0f} min {:.2f} s  AllBATCH: {}".format(
                                                                     NOW_BATCH, 
                                                                     BATCH_SIZE,
-                                                                    Average_loss / All_batchsize, 
-                                                                    100 * Average_correct / All_batchsize,
-                                                                    Step_loss / BATCH_SIZE, 
-                                                                    100 * Step_correct / BATCH_SIZE,
-                                                                    step_time % 60,
-                                                                    all_time // 60,
-                                                                    all_time % 60,
-                                                                    All_batchsize))
+            Average_loss / All_input_pic,
+            100 * Average_correct / All_input_pic,
+            Step_loss / BATCH_SIZE,
+            100 * Step_correct / BATCH_SIZE,
+            step_time % 60,
+            all_time // 60,
+            all_time % 60,
+                                                                    All_input_pic))
     
     # 6. Adjust Data
     y = y.tolist()
@@ -193,13 +193,13 @@ for NOW_BATCH in range(len(all_data_file)//SMALL_BATCH_SIZE):
     # 7. Save Model
     if (NOW_BATCH%2500 == 0) and (NOW_BATCH != 0):
         print("-----Save model-----")
-        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model"+str(All_batchsize)+".pkl"))
+        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model" + str(All_input_pic) + ".pkl"))
     if (NOW_BATCH == 9984):
         print("-----Save model-----")
-        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model"+str(All_batchsize)+".pkl"))
+        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model" + str(All_input_pic) + ".pkl"))
     if (NOW_BATCH == 9985):
         print("-----Save model-----")
-        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model"+str(All_batchsize)+".pkl"))
+        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model" + str(All_input_pic) + ".pkl"))
     if (NOW_BATCH == 9986):
         print("-----Save model-----")
-        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model"+str(All_batchsize)+".pkl"))
+        torch.save(model.state_dict(), ("./checkpoint_Ebbinghaus_format02/model" + str(All_input_pic) + ".pkl"))
